@@ -1,0 +1,31 @@
+pipeline { 
+  agent any
+    stages{ 
+      stage('build maven') { 
+        steps{
+          sh 'mvn clean install package'
+          archiveArtifacts artifacts: 'target/.jar'
+        }
+      }
+      stage ('docker build') {
+        steps{
+          sh "docker build -t ajit4/spring-petclinic:${BUILD_NUMBER} ."
+        }
+      }
+      stage ('docker push') { 
+        steps{
+          withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub')]) {
+              sh " docker login -u ajit4 -p ${dockerhub}"
+          }
+          sh "docker push ajit4/spring-petclinic:${BUILD_NUMBER}"
+        }
+      }
+      stage ('deploy on server') { 
+        steps {
+          sshagent(['deployserver']) {
+             sh 'ssh -o StrictHostKeyChecking=no ec2-user@52.77.215.54 docker run -d -p 8080:8080 ajit4/spring-petclinic:${BUILD_NUMBER} --name= spring-petclinic:${BUILD_NUMBER} '
+          }
+        }
+      }
+    }
+}
