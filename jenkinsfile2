@@ -4,7 +4,7 @@ pipeline {
       stage('build maven') { 
         steps{
           sh 'mvn clean install -Dmaven.test.skip=true'
-          archiveArtifacts artifacts: 'target/.jar'
+          archiveArtifacts artifacts: 'target/*.jar'
         }
       }
       stage ('docker build') {
