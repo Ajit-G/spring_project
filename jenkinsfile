@@ -6,27 +6,11 @@ pipeline{
           sh 'mvn clean install package'
           archiveArtifacts artifacts: 'target/*.jar'  
       }
-    }
-    stage ('nexus upload') {
-      steps{
-        nexusArtifactUploader artifacts: [
-        [artifactId: 'simple-app', 
-        classifier: '', 
-        file: './target/simple-app-1.0.0-SNAPSHOT.jar', 
-        type: 'jar']
-        ], 
-        credentialsId: 'nexus3', 
-        groupId: 'in.javahome', 
-        nexusUrl: '3.0.100.32:8081', 
-        nexusVersion: 'nexus3', 
-        protocol: 'http', 
-        repository: 'simpleapp-SNAPSHOT', 
-        version: '1.0.0-SNAPSHOT'
-      }
+    }    
      }
      stage ('build docker image') {
       steps{
-        sh 'docker build -t ajit4/simpleapp:${BUILD_NUMBER} .'
+        sh 'docker build -t ajit4/spring-petclinic:${BUILD_NUMBER} .'
       }
      }
      stage ('push image to docker hub') {
@@ -34,19 +18,18 @@ pipeline{
         withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub')]) {
             sh "docker login -u ajit4 -p ${dockerhub}"
        }
-        sh "docker push ajit4/simpleapp:${BUILD_NUMBER}"
+        sh "docker push ajit4/spring-petclinic:${BUILD_NUMBER}"
       }
      }
      stage ('deploy on server') {
      	steps {
 		sshagent (credentials: ['deployserver']) {
 		    
-		    sh "ssh -o StrictHostKeyChecking=no ec2-user@3.0.100.32 docker run -itd -p 7000:7000 --name=simpleapp-${BUILD_NUMBER} --entrypoint=/bin/bash ajit4/simpleapp:${BUILD_NUMBER}"
-		    
-		    
+		    sh "ssh -o StrictHostKeyChecking=no ec2-user@52.77.215.54 docker run -itd -p 7000:7000 --name=simpleapp-${BUILD_NUMBER}  ajit4/spring-petclinic:${BUILD_NUMBER}"	    
 		    
 	   }
 	}
      }
+ 
    }
 }
