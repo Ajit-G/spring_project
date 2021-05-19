@@ -20,18 +20,18 @@ pipeline {
           sh "docker push ajit4/spring-petclinic:${BUILD_NUMBER}"
         }
       }
-      stage ('deploy on same server') {
+      /* stage ('deploy on same server') {
         steps {
           sh "docker run -d -p 8080:8080 --name=dockerhub:${BUILD_NUMBER} ajit4/spring-petclinic:${BUILD_NUMBER} "
         }
-      }
-      /* stage ('deploy on server') { 
+      } */
+       stage ('deploy on server') { 
         steps {
-          sshagent(['deployserver']) {
-             sh 'ssh -o StrictHostKeyChecking=no ec2-user@52.77.215.54 docker run -d -p 8080:8080 --name=dockerhub:${BUILD_NUMBER} ajit4/spring-petclinic:${BUILD_NUMBER}  '
+          sshagent(['ec2-user']) {
+             sh 'ssh -o StrictHostKeyChecking=no ec2-user@13.250.13.183 docker run -d -p 8080:8080 --name=dockerhub:${BUILD_NUMBER} ajit4/spring-petclinic:${BUILD_NUMBER}  '
           }
         }
-      } */
+      } 
       
     }
 }
