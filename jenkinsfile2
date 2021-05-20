@@ -28,7 +28,7 @@ pipeline {
        stage ('deploy on server') { 
         steps {
           sshagent(['ec2-user']) {
-             sh 'ssh -o StrictHostKeyChecking=no ec2-user@13.250.13.183 docker run -d -p 8080:8080 --name=dockerhub:${BUILD_NUMBER} ajit4/spring-petclinic:${BUILD_NUMBER}  '
+             sh 'ssh -o StrictHostKeyChecking=no ec2-user@13.250.1.147 docker run -d -p 8080:8080 --name=dockerhub:${BUILD_NUMBER} ajit4/spring-petclinic:${BUILD_NUMBER}  '
           }
         }
       } 
